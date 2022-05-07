@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Validator;
@@ -55,17 +56,14 @@ class MobilController extends Controller
             $addData['kategori_aset'] = 'Mitra';
         }
 
-        $image = $request->file('foto_mobil');
-        $fileName = Carbon::now()->toDateString().uniqid();
-        (Storage::putFileAs('public/foto_mobil',$image, $fileName.'.'.$image->getClientOriginalExtension()));
-        $addData['foto_mobil'] = $fileName.'.'.$image->getClientOriginalExtension();
+        
 
         $validate = Validator::make($addData, [
             'id_mobil',
             'id_mitra',
             'no_plat' => 'required',
             'nama_mobil' => 'required',
-            'foto_mobil' => 'required',
+            'foto_mobil' => 'required|image',
             'tipe_mobil' => 'required',
             'jenis_transmisi' => 'required',
             'jenis_bahan_bakar' => 'required',
@@ -75,15 +73,34 @@ class MobilController extends Controller
             'fasilitas_mobil' => 'required',
             'no_stnk' => 'required',
             'tgl_servis_terakhir' => 'required|date_format:Y-m-d',
-            'kategori_aset' => 'required',
+            'kategori_aset',
             'status_ketersediaan_mobil',
             'tarif_mobil_harian'=> 'required',
-            'tgl_mulai_kontrak'=> 'date_format:Y-m-d',
-            'tgl_habis_kontrak'=> 'date_format:Y-m-d'
+            'tgl_mulai_kontrak',
+            'tgl_habis_kontrak'
+        ],[],[
+            'no_plat' => 'Nomor Plat Mobil',
+            'nama_mobil' => 'Nama Mobil',
+            'foto_mobil' => 'Foto Mobil',
+            'tipe_mobil' => 'Tipe Mobil',
+            'jenis_transmisi' => 'Jenis Transmisi',
+            'jenis_bahan_bakar' => 'Jenis Bahan Bakar',
+            'volume_bahan_bakar' => 'Volume Bahan Bakar',
+            'warna_mobil' => 'Warna Mobil',
+            'kapasitas_penumpang' => 'Kapasitas Penumpang',
+            'fasilitas_mobil' => 'Fasilitas Mobil',
+            'no_stnk' => 'Nomor STNK',
+            'tgl_servis_terakhir' => 'Tanggal Servis Terakhir',
+            'tarif_mobil_harian'=> 'Tarif Mobil Harian',
         ]);
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);
+
+        $image = $request->file('foto_mobil');
+        $fileName = Carbon::now()->toDateString().uniqid();
+        (Storage::putFileAs('public/foto_mobil',$image, $fileName.'.'.$image->getClientOriginalExtension()));
+        $addData['foto_mobil'] = $fileName.'.'.$image->getClientOriginalExtension();
 
         $mobil = Mobil::create($addData);
         return response([
@@ -138,7 +155,7 @@ class MobilController extends Controller
             $image = $request->file('foto_mobil');
             $fileName = Carbon::now()->toDateString().uniqid();
             (Storage::putFileAs('public/foto_mobil',$image, $fileName.'.'.$image->getClientOriginalExtension()));
-            $updateData['foto_mobil'] = $fileName.'.'.$image->getClientOriginalExtension();
+            $mobil->foto_mobil = $fileName.'.'.$image->getClientOriginalExtension();
         }
 
         $validate = Validator::make($updateData, [
@@ -146,7 +163,7 @@ class MobilController extends Controller
             'id_mitra',
             'no_plat' => 'required',
             'nama_mobil' => 'required',
-            'foto_mobil' => 'required',
+            'foto_mobil' => 'image',
             'tipe_mobil' => 'required',
             'jenis_transmisi' => 'required',
             'jenis_bahan_bakar' => 'required',
@@ -159,8 +176,22 @@ class MobilController extends Controller
             'kategori_aset' => 'required',
             'status_ketersediaan_mobil',
             'tarif_mobil_harian'=> 'required',
-            'tgl_mulai_kontrak'=> 'date_format:Y-m-d',
-            'tgl_habis_kontrak'=> 'date_format:Y-m-d'
+            'tgl_mulai_kontrak',
+            'tgl_habis_kontrak' 
+        ],[],[
+            'no_plat' => 'Nomor Plat Mobil',
+            'nama_mobil' => 'Nama Mobil',
+            'foto_mobil' => 'Foto Mobil',
+            'tipe_mobil' => 'Tipe Mobil',
+            'jenis_transmisi' => 'Jenis Transmisi',
+            'jenis_bahan_bakar' => 'Jenis Bahan Bakar',
+            'volume_bahan_bakar' => 'Volume Bahan Bakar',
+            'warna_mobil' => 'Warna Mobil',
+            'kapasitas_penumpang' => 'Kapasitas Penumpang',
+            'fasilitas_mobil' => 'Fasilitas Mobil',
+            'no_stnk' => 'Nomor STNK',
+            'tgl_servis_terakhir' => 'Tanggal Servis Terakhir',
+            'tarif_mobil_harian'=> 'Tarif Mobil Harian',
         ]);
 
         if($validate->fails())
@@ -199,9 +230,9 @@ class MobilController extends Controller
  
     public function showDataMobilHabisKontrak(){
         $currDate = Carbon::now()->format('ymd');
-        $mobils = Mobil::selectRaw("mobils.no_plat, mobils.nama_mobil, mitras.nama_mitra, DATEDIFF($currDate, mobils.tgl_habis_kontrak) as sisa_durasi_kontrak")
+        $mobils = Mobil::selectRaw("mobils.no_plat, mobils.nama_mobil, mitras.nama_mitra, DATEDIFF(mobils.tgl_habis_kontrak, $currDate) as sisa_durasi_kontrak")
             ->join('mitras','mitras.id_mitra','=','mobils.id_mitra')
-            ->whereRaw("DATEDIFF($currDate, mobils.tgl_habis_kontrak)<30")
+            ->whereRaw("DATEDIFF(mobils.tgl_habis_kontrak, $currDate)<30")
             ->get();
         
         if(count($mobils)>0){

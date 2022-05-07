@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('kartu_identitas_customer');
             $table->string('no_sim_customer')->nullable();
             $table->string('sim_customer')->nullable();
-            $table->string('email_customer');
-            $table->string('password_customer');
+            $table->string('email');
+            $table->string('password');
             $table->boolean('tipe_sewa_customer')->nullable(); //1 = sewa driver dan mobil, 0 = sewa mobil
             $table->timestamps();
         });

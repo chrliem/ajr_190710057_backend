@@ -31,8 +31,8 @@ return new class extends Migration
             $table->string('kategori_aset');
             $table->boolean('status_ketersediaan_mobil');
             $table->float('tarif_mobil_harian',24,2);
-            $table->date('tgl_mulai_kontrak');
-            $table->date('tgl_habis_kontrak');
+            $table->date('tgl_mulai_kontrak')->nullable();
+            $table->date('tgl_habis_kontrak')->nullable();
             $table->timestamps();
             $table->foreign('id_mitra')->references('id_mitra')->on('mitras');
         });

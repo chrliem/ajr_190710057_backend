@@ -51,8 +51,16 @@ class MitraController extends Controller
             'alamat_mitra'=>'required',
             'no_telepon_mitra'=>'required|numeric|digits_between:1,13|regex:/^((08))/',
             'status_aktif'
+        ],[],[
+            'nama_mitra'=>'Nama Mitra',
+            'no_ktp_mitra'=>'Nomor KTP Mitra',
+            'alamat_mitra'=>'Alamat Mitra',
+            'no_telepon_mitra'=>'Nomor Telepon Mitra',
         ]);
 
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);
+            
         $mitra = Mitra::create($addData);
         return response([
             'message' => 'Add Mitra Success',
@@ -103,6 +111,11 @@ class MitraController extends Controller
             'alamat_mitra'=>'required',
             'no_telepon_mitra'=>'required|numeric|digits_between:1,13|regex:/^((08))/',
             'status_aktif'
+        ],[],[
+            'nama_mitra'=>'Nama Mitra',
+            'no_ktp_mitra'=>'Nomor KTP Mitra',
+            'alamat_mitra'=>'Alamat Mitra',
+            'no_telepon_mitra'=>'Nomor Telepon Mitra',
         ]);
 
         if($validate->fails())

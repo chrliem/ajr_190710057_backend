@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Passport\HasApiTokens;
+// use Illuminate\Auth\Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 
-class Pegawai extends Model
+
+class Pegawai extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens, Notifiable;
+    protected $guard = 'pegawai';
+    protected $keyType = 'string';
 
     protected $primaryKey = 'id_pegawai';
     
@@ -26,11 +33,10 @@ class Pegawai extends Model
         'alamat_pegawai',
         'no_telepon_pegawai',
         'foto_pegawai',
-        'email_pegawai',
-        'password_pegawai',
+        'email',
+        'password',
         'status_aktif'
     ];
-
 
     public function getCreatedAttribute(){
         if(!is_null($this->attributes['created_at'])){

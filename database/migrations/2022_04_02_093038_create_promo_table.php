@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('promos', function (Blueprint $table) {
-            $table->string('kode_promo')->primary();
+            $table->id('id_promo');
+            $table->string('kode_promo');
             $table->string('jenis_promo');
             $table->string('keterangan');
             $table->float('potongan_promo',10,2);

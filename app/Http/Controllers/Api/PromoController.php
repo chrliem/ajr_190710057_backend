@@ -47,7 +47,16 @@ class PromoController extends Controller
             'keterangan'=>'required',
             'potongan_promo'=>'required',
             'status_promo'
+        ],[],[
+            'kode_promo'=>'Kode Promo',
+            'jenis_promo'=>'Jenis Promo',
+            'keterangan'=>'Keterangan',
+            'potongan_promo'=>'Potongan Promo',
+            'status_promo'
         ]);
+
+        if($validate->fails())
+            return response(['message'=> $validate->errors()],400);
 
         $promo = Promo::create($addData);
         return response([
@@ -97,6 +106,12 @@ class PromoController extends Controller
             'jenis_promo'=>'required',
             'keterangan'=>'required',
             'potongan_promo'=>'required',
+            'status_promo'
+        ],[],[
+            'kode_promo'=>'Kode Promo',
+            'jenis_promo'=>'Jenis Promo',
+            'keterangan'=>'Keterangan',
+            'potongan_promo'=>'Potongan Promo',
             'status_promo'
         ]);
 

@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('tgl_lahir_driver');
             $table->string('jenis_kelamin_driver');
             $table->string('no_telepon_driver');
-            $table->string('email_driver');
-            $table->string('password_driver');
+            $table->string('email');
+            $table->string('password');
             $table->string('foto_driver');
             $table->string('no_sim_driver');
             $table->string('sim_driver');

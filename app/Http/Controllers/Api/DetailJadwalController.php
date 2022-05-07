@@ -11,12 +11,16 @@ use Carbon\Carbon;
 class DetailJadwalController extends Controller
 {
     public function showJadwalPegawai(){
-        $jadwals = DetailJadwal::all();
+        // $detailjadwals = DetailJadwal::all();
+        $detailjadwals = DetailJadwal::selectRaw("detail_jadwals.id, pegawais.id_pegawai, jadwal_pegawais.id_jadwal, pegawais.nama_pegawai, jadwal_pegawais.hari, jadwal_pegawais.shift")
+                    ->join('pegawais','pegawais.id_pegawai','=','detail_jadwals.id_pegawai')
+                    ->join('jadwal_pegawais','jadwal_pegawais.id_jadwal','=','detail_jadwals.id_jadwal')
+                    ->get();
 
-        if(count($jadwals)>0){
+        if(count($detailjadwals)>0){
             return response([
                 'message' => 'Retrieve All Jadwal Pegawai Success',
-                'data' => $jadwals
+                'data' => $detailjadwals
             ],200);
         }
 
@@ -27,9 +31,9 @@ class DetailJadwalController extends Controller
     }
 
     public function showJadwalPegawaibyId($id){
-        $jadwal = DetailJadwal::find($id);
+        $detailjadwal = DetailJadwal::find($id);
 
-        if(!is_null($jadwal)){
+        if(!is_null($detailjadwal)){
             return response([
                 'message' => 'Retrieve Jadwal Pegawai Success',
                 'data' => $jadwal
@@ -40,22 +44,38 @@ class DetailJadwalController extends Controller
     public function addJadwalPegawai(Request $request){
         $addData = $request->all();
         
-        $countShift = DetailJadwal::selectRaw('COUNT(id_jadwal) as jumlah_shift')->whereRaw('id_pegawai = ?',$request->id_pegawai)
-            ->get()
-            ->first()
-            ->jumlah_shift;
         
-        if($countShift>5){
-            return response([
-                'message' => 'Pegawai Has More Than 6 Shifts',
-            ]);
-        }
 
         $validate = Validator::make($addData, [
             'id',
             'id_jadwal'=>'required',
             'id_pegawai'=>'required'
-        ]);
+        ],[],['id_jadwal'=>'Pilihan Jadwal',
+        'id_pegawai'=>'Pegawai']);
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()],400);
+
+            $countShift = DetailJadwal::selectRaw('COUNT(id_jadwal) as jumlah_shift')->whereRaw('id_pegawai = ?',$request->id_pegawai)
+            ->get()
+            ->first()
+            ->jumlah_shift;
+
+        $checkUnique = DetailJadwal::selectRaw('id_jadwal, id_pegawai')->whereRaw("id_pegawai =$request->id_pegawai&& id_jadwal=$request->id_jadwal")
+            ->get()
+            ->first();
+
+        if($countShift>5){
+            return response([
+                'message' => 'Pegawai sudah memiliki 6 shift',
+            ]);
+        }
+
+        if($checkUnique!=null){
+            return response([
+                'message' => 'Pegawai sudah mengisi shift ini'
+            ]);
+        }
 
         $jadwal = DetailJadwal::create($addData);
         return response([
@@ -102,7 +122,8 @@ class DetailJadwalController extends Controller
             'id',
             'id_jadwal'=>'required',
             'id_pegawai'=>'required'
-        ]);
+        ],[],['id_jadwal'=>'Pilihan Jadwal',
+        'id_pegawai'=>'Pegawai']);
 
         if($validate->fails())
             return response(['message' => $validate->errors()],400);

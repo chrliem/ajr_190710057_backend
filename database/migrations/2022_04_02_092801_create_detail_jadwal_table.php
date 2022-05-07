@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('detail_jadwals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_jadwal')->nullable();
-            $table->unsignedBigInteger('id_pegawai')->nullable();
+            $table->string('id_pegawai')->nullable();
             $table->timestamps();
             $table->foreign('id_jadwal')->references('id_jadwal')->on('jadwal_pegawais');
             $table->foreign('id_pegawai')->references('id_pegawai')->on('pegawais');

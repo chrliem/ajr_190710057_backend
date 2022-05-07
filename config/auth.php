@@ -40,12 +40,35 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
         'api'=> [
             'driver' => 'passport',
             'provider' => 'users',
+        ],
+        'pegawai' => [
+            'driver' => 'session',
+            'provider' => 'pegawais',   
+        ],
+        'pegawai-api' => [
+            'driver' => 'passport',
+            'provider' => 'pegawais',
+        ],
+        'driver' => [
+            'driver' => 'session',
+            'provider' => 'drivers',
+        ],
+        'driver-api' => [
+            'driver' => 'passport',
+            'provider' => 'drivers',
+        ],
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
+        'customer-api' => [
+            'driver' => 'passport',
+            'provider' => 'customers',
         ]
-            
+                     
     ],
 
     /*
@@ -70,6 +93,18 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+        'pegawais'=> [
+            'driver' => 'eloquent',
+            'model' => App\Models\Pegawai::class,
+        ],
+        'drivers'=> [
+            'driver' => 'eloquent',
+            'model' => App\Models\Driver::class,
+        ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Customer::class
+        ]
 
         // 'users' => [
         //     'driver' => 'database',

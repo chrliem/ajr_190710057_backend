@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Passport\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Customer extends Model
+class Customer extends Authenticatable
 {
-    use HasFactory;
-
+    use HasFactory, HasApiTokens, Notifiable;
+    protected $guard = 'customer';
     protected $primaryKey = 'id_customer';
     protected $keyType = 'string';
 
@@ -24,8 +28,8 @@ class Customer extends Model
         'kartu_identitas_customer',
         'no_sim_customer',
         'sim_customer',
-        'email_customer',
-        'password_customer',
+        'email',
+        'password',
         'tipe_sewa_customer'
     ];
 

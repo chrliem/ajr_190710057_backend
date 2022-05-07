@@ -10,10 +10,10 @@ class Promo extends Model
 {
     use HasFactory;
     
-    protected $primaryKey = 'kode_promo';
-    protected $keyType = 'string';
+    protected $primaryKey = 'id_promo';    // protected $keyType = 'string';
 
     protected $fillable = [
+        'id_promo',
         'kode_promo',
         'jenis_promo',
         'keterangan',

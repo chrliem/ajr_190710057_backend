@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Passport\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Driver extends Model
+class Driver extends Authenticatable
 {
-    use HasFactory;
-
+    use HasFactory, HasApiTokens, Notifiable;
+    protected $guard = 'driver';
     protected $primaryKey = 'id_driver';
     protected $keyType = 'string';
 
@@ -20,8 +24,8 @@ class Driver extends Model
         'tgl_lahir_driver',
         'jenis_kelamin_driver',
         'no_telepon_driver',
-        'email_driver',
-        'password_driver',
+        'email',
+        'password',
         'foto_driver',
         'no_sim_driver',
         'sim_driver',

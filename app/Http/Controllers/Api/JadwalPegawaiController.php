@@ -40,11 +40,27 @@ class JadwalPegawaiController extends Controller
     public function addJadwalPegawai(Request $request){
         $addData = $request->all();
 
+        $checkUnique = JadwalPegawai::selectRaw('hari, shift')->whereRaw("hari ='$request->hari'&& shift='$request->shift'")
+            ->get()
+            ->first();
+        
+        if($checkUnique!=null){
+            return response([
+                'message' => 'Pilihan jadwal sudah ada'
+            ]);
+        }
+
         $validate = Validator::make($addData, [
             'id_jadwal',
             'hari'=>'required',
             'shift'=>'required'
+        ],[],[
+            'hari'=>'Hari',
+            'shift'=>'Shift'
         ]);
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);
 
         $jadwal = JadwalPegawai::create($addData);
         return response([
@@ -91,6 +107,9 @@ class JadwalPegawaiController extends Controller
             'id_jadwal',
             'hari'=>'required',
             'shift'=>'required'
+        ],[],[
+            'hari'=>"Hari",
+            'shift'=>"Shift"
         ]);
 
         if($validate->fails())

@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Validator;
 use App\Models\Customer;
+use App\Models\TransaksiPenyewaan;
 use Carbon\Carbon;
 
 class CustomerController extends Controller
@@ -41,35 +42,34 @@ class CustomerController extends Controller
         }
     }
 
+    public function showDataTransaksiPenyewaanbyIdCustomer($id){
+        $transaksis = TransaksiPenyewaan::selectRaw('*')->whereRaw("id_customer='$id'")->get();
+
+        if(count($transaksis)>0){
+            return response([
+                'messsage' => 'Retrieve All Transaksi Success',
+                'data' => $transaksis
+            ], 200);
+        }
+
+        return response([
+            'message'=>'Empty',
+            'data'=> null
+        ], 404);
+    }
+
     public function addDataCustomer(Request $request){
         
         $addData = $request->all();
         
         //CUSyymmdd-XXX (XXX = AUTO INCREMENT)
-        $date = Carbon::now()->format('Ymd');
+        $date = Carbon::now()->format('ymd');
         $count = count(Customer::all())+1;
         
         if($count<9){
             $formattedNum = Str::padLeft($count, 3,'00');
         }else if($count>9 && $count<100){
             $formattedNum = Str::padLeft($count, 3,'0');
-        }
-
-        $kartuIdentitas = base64_decode($request['kartu_identitas_customer']);
-        $sim = base64_decode($request['sim_customer']);
-        $imageName = uniqid() . '.png';
-        $filePath = 'images/' . $imageName;
-
-        if(Storage::disk('public')->put($filePath, $kartuIdentitas)){
-            $request['kartu_identitas_customer'] = Storage::disk('public')->url($filePath);
-        }else{
-            return response(['message' => 'Upload Kartu Identitas Failed. '],409);
-        }
-
-        if(Storage::disk('public')->put($filePath, $sim)){
-            $request['sim_customer'] = Storage::disk('public')->url($filePath);
-        }else{
-            return response(['message' => 'Upload SIM Failed. '],409);
         }
 
         $addData['id_customer'] = 'CUS'.$date.'-'.$formattedNum;
@@ -82,22 +82,50 @@ class CustomerController extends Controller
         'jenis_kelamin_customer' => 'required',
         'no_telepon_customer' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
         'no_kartu_identitas_customer' => 'required' ,
-        'kartu_identitas_customer' => 'required',
+        'kartu_identitas_customer' => 'required|image',
         'no_sim_customer',
-        'sim_customer',
-        'email_customer' => 'required|email:rfc,dns|unique:customers',
-        'password_customer' => 'required',
+        'sim_customer' => 'image',
+        'email' => 'required|email:rfc,dns|unique:customers|unique:drivers,email|unique:pegawais,email',
+        'password',
         'tipe_sewa_customer'
+        ],[],[
+            'nama_customer'=>'Nama Customer',
+            'alamat_customer'=> 'Alamat Customer',
+            'tgl_lahir_customer' =>'Tanggal Lahir Customer',
+            'jenis_kelamin_customer' => 'Jenis Kelamin Customer',
+            'no_telepon_customer' => 'Nomor Telepon Customer',
+            'no_kartu_identitas_customer' => 'Nomor Kartu Identitas' ,
+            'kartu_identitas_customer' => 'Foto Kartu Identitas',
+            'no_sim_customer',
+            'sim_customer',
+            'email' => 'Email Customer',
         ]);
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);
-        $addData['password_customer'] = bcrypt($request->password_customer);
+
+        $addData['password'] = Carbon::parse($request->tgl_lahir_customer)->format('d/m/Y');
+        $addData['password'] = bcrypt($addData['password']);
+
+        $image1 = $request->file('kartu_identitas_customer');
+        $fileName = Carbon::now()->toDateString().uniqid();
+        (Storage::putFileAs('public/kartu_identitas_customer',$image1, $fileName.'.'.$image1->getClientOriginalExtension()));
+        $addData['kartu_identitas_customer'] = $fileName.'.'.$image1->getClientOriginalExtension();
+
+        $image2 = $request->file('sim_customer');
+        if(is_null($image2)){
+            $addData['sim_customer'] = null;
+        }else{
+            $fileName = Carbon::now()->toDateString().uniqid();
+            (Storage::putFileAs('public/sim_customer',$image2, $fileName.'.'.$image2->getClientOriginalExtension()));
+            $addData['sim_customer'] = $fileName.'.'.$image2->getClientOriginalExtension();
+        }
+        
 
         $customer = Customer::create($addData);
         
         return response([
-            'message' => 'Add Customer Success',
+            'message' => 'Registrasi Customer Success',
             'data' => $customer
         ], 200); 
         
@@ -145,21 +173,18 @@ class CustomerController extends Controller
 
         $updateData = $request->all();
 
-        $kartuIdentitas = base64_decode($request['kartu_identitas_customer']);
-        $sim = base64_decode($request['sim_customer']);
-        $imageName = uniqid() . '.png';
-        $filePath = 'images/' . $imageName;
-
-        if(Storage::disk('public')->put($filePath, $kartuIdentitas)){
-            $request['kartu_identitas_customer'] = Storage::disk('public')->url($filePath);
-        }else{
-            return response(['message' => 'Upload Kartu Identitas Failed. '],409);
+        if(isset($request->kartu_identitas_customer)){
+            $image1 = $request->file('kartu_identitas_customer');
+            $fileName = Carbon::now()->toDateString().uniqid();
+            (Storage::putFileAs('public/kartu_identitas_customer',$image1, $fileName.'.'.$image1->getClientOriginalExtension()));
+            $customer->kartu_identitas_customer = $fileName.'.'.$image1->getClientOriginalExtension();
         }
 
-        if(Storage::disk('public')->put($filePath, $sim)){
-            $request['sim_customer'] = Storage::disk('public')->url($filePath);
-        }else{
-            return response(['message' => 'Upload SIM Failed. '],409);
+        if(isset($request->sim_customer)){
+            $image2 = $request->file('sim_customer');
+            $fileName = Carbon::now()->toDateString().uniqid();
+            (Storage::putFileAs('public/sim_customer',$image2, $fileName.'.'.$image2->getClientOriginalExtension()));
+            $customer->sim_customer = $fileName.'.'.$image2->getClientOriginalExtension();
         }
 
         $validate = Validator::make($updateData, [
@@ -170,34 +195,48 @@ class CustomerController extends Controller
         'jenis_kelamin_customer' => 'required',
         'no_telepon_customer' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
         'no_kartu_identitas_customer' => 'required' ,
-        'kartu_identitas_customer' => 'required',
+        'kartu_identitas_customer' => 'image',
         'no_sim_customer',
-        'sim_customer',
-        'email_customer' => 'required',
-        'password_customer' => 'required',
+        'sim_customer' => 'image',
+        'email' => 'required|unique:drivers,email|unique:pegawais,email',
+        'password',
         'tipe_sewa_customer'
+        ],[],[
+            'nama_customer'=>'Nama Customer',
+            'alamat_customer'=> 'Alamat Customer',
+            'tgl_lahir_customer' =>'Tanggal Lahir Customer',
+            'jenis_kelamin_customer' => 'Jenis Kelamin Customer',
+            'no_telepon_customer' => 'Nomor Telepon Customer',
+            'no_kartu_identitas_customer' => 'Nomor Kartu Identitas' ,
+            'kartu_identitas_customer' => 'Foto Kartu Identitas',
+            'no_sim_customer',
+            'sim_customer',
+            'email' => 'Email Customer',
         ]);
 
         if($validate->fails())
             return response(['message'=> $validate->errors()],400);
-        
-        $updateData['password_customer'] = bcrypt($request->password_customer); 
-        
+
+        if($request->tgl_lahir_customer!=$customer->tgl_lahir_customer){
+            $updateData['password'] = Carbon::parse($request->tgl_lahir_customer)->format('d/m/Y');
+            $updateData['password'] = bcrypt($updateData['password']);
+            $customer->password = $updateData['password'];
+        }
+        // $updateData['password'] = bcrypt($updateData['password']);
+
         $customer->nama_customer = $updateData['nama_customer'];
         $customer->alamat_customer = $updateData['alamat_customer'];
         $customer->tgl_lahir_customer = $updateData['tgl_lahir_customer'];
         $customer->jenis_kelamin_customer = $updateData['jenis_kelamin_customer'];
         $customer->no_telepon_customer = $updateData['no_telepon_customer'];
         $customer->no_kartu_identitas_customer = $updateData['no_kartu_identitas_customer'];
-        $customer->kartu_identitas_customer= $updateData['kartu_identitas_customer'];
         $customer->no_sim_customer = $updateData['no_sim_customer'];
-        $customer->sim_customer= $updateData['sim_customer'];
-        $customer->email_customer = $updateData['email_customer'];
-        $customer->password_customer = $updateData['password_customer'];
+        $customer->email = $updateData['email'];
+        // $customer->password = $updateData['password'];
 
         if($customer->save()){
             return response([
-                'message' => 'Update Customer Success',
+                'message' => 'Update Data Customer Success',
                 'data' => $customer
             ], 200);
         }

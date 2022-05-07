@@ -49,26 +49,36 @@ class PegawaiController extends Controller
     public function addDataPegawai(Request $request){
         
         $addData = $request->all(); 
-        
+        $count = count(Pegawai::all())+1;
         $addData['status_aktif'] = 1;
-        $addData['password_pegawai'] = Carbon::parse($request->tgl_lahir_pegawai)->format('d/m/Y');
 
         $validate = Validator::make($addData, [
             'id_pegawai',
             'id_role' => 'required',
-            'nama_pegawai' => 'required',
+            'nama_pegawai' => 'required|string',
             'tgl_lahir_pegawai' => 'required|date_format:Y-m-d',
             'jenis_kelamin_pegawai' => 'required',
             'alamat_pegawai' => 'required',
             'no_telepon_pegawai' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
             'foto_pegawai' => 'required|image|mimes:jpeg,jpg,png',
-            'email_pegawai' => 'required|email:rfc,dns|unique:pegawais', 
-            'password_pegawai',
+            'email' => 'required|email:rfc,dns|unique:pegawais|unique:customers,email|unique:drivers,email', 
+            'password',
             'status_aktif' => 'required'
-        ]); 
+        ], [],[ 'id_role' => 'Role Pegawai',
+                'nama_pegawai' => 'Nama Pegawai',
+                'tgl_lahir_pegawai' => 'Tanggal Lahir Pegawai',
+                'jenis_kelamin_pegawai' => 'Jenis Kelamin Pegawai',
+                'alamat_pegawai' => 'Alamat Pegawai',
+                'no_telepon_pegawai' => 'Nomor Telepon Pegawai',
+                'foto_pegawai' => 'Foto Pegawai',
+                'email' => 'Email Pegawai', 
+                'password',]); 
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);
+        $addData['id_pegawai'] = $count;
+        $addData['password'] = Carbon::parse($request->tgl_lahir_pegawai)->format('d/m/Y');
+        $addData['password'] = bcrypt($addData['password']);
         
         $image = $request->file('foto_pegawai');
         $fileName = Carbon::now()->toDateString().uniqid();
@@ -117,13 +127,13 @@ class PegawaiController extends Controller
             ],404);
         }
 
-        $updateData = $request->all() ;
+        $updateData = $request->all();
         
         if(isset($request->foto_pegawai)){
             $image = $request->file('foto_pegawai');
             $fileName = Carbon::now()->toDateString().uniqid();
             Storage::putFileAs('public/foto_pegawai',$image, $fileName.'.'.$image->getClientOriginalExtension());
-            $updateData['foto_pegawai'] = $fileName.'.'.$image->getClientOriginalExtension();
+            $pegawai->foto_pegawai  = $fileName.'.'.$image->getClientOriginalExtension();
         }
             
         $validate = Validator::make($updateData, [
@@ -134,24 +144,38 @@ class PegawaiController extends Controller
             'jenis_kelamin_pegawai' => 'required',
             'alamat_pegawai' => 'required',
             'no_telepon_pegawai' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
-            'foto_pegawai => required|image|mime:jpg, jpeg, png',
-            'email_pegawai' => 'required|email:rfc,dns', 
-            'password_pegawai' => 'required',
+            'foto_pegawai' => 'image',
+            'email' => 'required|email:rfc,dns|unique:customers,email|unique:drivers,email', 
+            'password',
             'status_aktif'
-        ]);
+        ],[],[ 'id_role' => 'Role Pegawai',
+        'nama_pegawai' => 'Nama Pegawai',
+        'tgl_lahir_pegawai' => 'Tanggal Lahir Pegawai',
+        'jenis_kelamin_pegawai' => 'Jenis Kelamin Pegawai',
+        'alamat_pegawai' => 'Alamat Pegawai',
+        'no_telepon_pegawai' => 'Nomor Telepon Pegawai',
+        'foto_pegawai' => 'Foto Pegawai',
+        'email' => 'Email Pegawai', 
+        'password',]);
             
         if($validate->fails())
             return response(['message' => $validate->errors()],400);
-  
+        
+        //JNGAN LUPA GANTI JUGA DI CUSTOMER DAN DRIVER CONTROLLER CODE 165-169
+        if($request->tgl_lahir_pegawai!=$pegawai->tgl_lahir_pegawai){
+            $updateData['password'] = Carbon::parse($request->tgl_lahir_pegawai)->format('d/m/Y');
+            $updateData['password'] = bcrypt($updateData['password']);
+            $pegawai->password = $updateData['password'];
+        }
+
         $pegawai->id_role = $updateData['id_role'];
         $pegawai->nama_pegawai = $updateData['nama_pegawai'];
         $pegawai->tgl_lahir_pegawai = $updateData['tgl_lahir_pegawai'];
         $pegawai->jenis_kelamin_pegawai = $updateData['jenis_kelamin_pegawai'];
         $pegawai->alamat_pegawai = $updateData['alamat_pegawai'];
         $pegawai->no_telepon_pegawai = $updateData['no_telepon_pegawai'];
-        $pegawai->foto_pegawai = $updateData['foto_pegawai'];
-        $pegawai->email_pegawai = $updateData['email_pegawai'];
-        $pegawai->password_pegawai = $updateData['password_pegawai'];
+        $pegawai->email = $updateData['email'];
+        
         $pegawai->status_aktif = $updateData['status_aktif'];
 
         if($pegawai->save()){
