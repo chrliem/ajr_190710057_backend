@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth:pegawai-api'], function(){
     Route::get('customer/{id}/verifikasi','Api\CustomerController@verifikasiDataCustomer');
 
     Route::get('driver','Api\DriverController@showDataDriver');
+    Route::get('average-ratingdriver','Api\DriverController@getRerataDriver');
     Route::get('driver/{id}','Api\DriverController@showDataDriverbyId');
     Route::post('driver','Api\DriverController@addDataDriver');
     Route::post('driver/{id}','Api\DriverController@updateDataDriver');
@@ -51,7 +52,7 @@ Route::group(['middleware' => 'auth:pegawai-api'], function(){
     Route::get('promo/{id}','Api\PromoController@showDataPromobyId');
     Route::post('promo','Api\PromoController@addDataPromo');
     Route::post('promo/{id}','Api\PromoController@updateDataPromo');
-    Route::put('promo/{id}/delete','Api\PromoController@deleteDataPromo');
+    Route::get('promo/{id}/delete','Api\PromoController@deleteDataPromo');
 
     Route::get('jadwalpegawai','Api\JadwalPegawaiController@showJadwalPegawai');
     Route::get('jadwalpegawai/{id}','Api\JadwalPegawaiController@showJadwalPegawaibyId');
@@ -66,11 +67,13 @@ Route::group(['middleware' => 'auth:pegawai-api'], function(){
     Route::delete('detailjadwal/{id}','Api\DetailJadwalController@deleteJadwalPegawai');
 
     Route::get('transaksipenyewaan','Api\TransaksiPenyewaanController@showDataTransaksiPenyewaan');
+    Route::get('average-ratingajr','Api\TransaksiPenyewaanController@averageRatingAJR');
     Route::get('transaksipenyewaan/{id}/transaksi','Api\TransaksiPenyewaanController@showDataTransaksiPenyewaanbyId');
     Route::get('transaksipenyewaan/{id}/customer','Api\TransaksiPenyewaanController@showDataTransaksiPenyewaanbyIdCustomer');
     Route::post('transaksipenyewaan/{id}/verifikasi','Api\TransaksiPenyewaanController@verifikasiDataTransaksiPenyewaan');
     Route::post('transaksipenyewaan/{id}/update','Api\TransaksiPenyewaanController@updateDataTransaksiPenyewaan');
     Route::post('transaksipenyewaan/{id}/pengembalian','Api\TransaksiPenyewaanController@hitungPembayaranAkhir');
+    Route::get('transaksipenyewaan/{id}/pembatalan','Api\TransaksiPenyewaanController@cancelDataTransaksiPenyewaan');
 
 });
 
@@ -85,7 +88,7 @@ Route::group(['middleware' => 'auth:customer-api'], function(){
     Route::get('transaksipenyewaan/{id}','Api\TransaksiPenyewaanController@showDataTransaksiPenyewaanbyId');
     Route::get('transaksipenyewaan-customer/{id}','Api\CustomerController@showDataTransaksiPenyewaanbyIdCustomer');
     Route::post('transaksipenyewaan','Api\TransaksiPenyewaanController@addDataTransaksiPenyewaan');
-    Route::get('transaksipenyewaan/{id}/pembatalan','Api\TransaksiPenyewaanController@cancelDataTransaksiPenyewaan');
+    // Route::get('transaksipenyewaan/{id}/pembatalan','Api\TransaksiPenyewaanController@cancelDataTransaksiPenyewaan');
     Route::post('transaksipenyewaan/{id}/pembayaran','Api\TransaksiPenyewaanController@pembayaranTransaksiPenyewaan');
     Route::post('transaksipenyewaan/{id}/total','Api\TransaksiPenyewaanController@hitungPembayaranAkhir');
     Route::post('transaksipenyewaan/{id}/rating','Api\TransaksiPenyewaanController@tambahRating');

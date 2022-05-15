@@ -12,70 +12,77 @@
     <td colspan="4"><center><strong>Atma Jogja Rental</strong></center></td>
     </tr>
     <tr class="border-bottom">
-    <td width="25%">{{$transaksi[0]->no_transaksi}}</td>
-    <td width="25%"></td>
-    <td width="25%"></td>
-    <td width="25%">{{$transaksi[0]->tgl_transaksi}}</td>
+        <td width="25%">{{$transaksi[0]->no_transaksi}}</td>
+        <td width="25%"></td>
+        <td width="25%"></td>
+        <td width="25%">{{$transaksi[0]->tgl_transaksi}}</td>
     </tr>
     <tr>
-    <td>Customer</td>
-    <td>{{$transaksi[0]->nama_customer}}</td>
-    <td>Promo</td>
-    <td>{{$transaksi[0]->kode_promo}}</td>
+        <td>Customer</td>
+        <td>{{$transaksi[0]->nama_customer}}</td>
+        <td>Promo</td>
+        <td>{{$transaksi[0]->kode_promo}}</td>
     </tr>
     <tr>
-    <td>Customer Service</td>
-    <td>{{$transaksi[0]->nama_pegawai}}</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+        <td>Customer Service</td>
+        <td>{{$transaksi[0]->nama_pegawai}}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr >
-    <td>Driver</td>
-    <td>{{$transaksi[0]->nama_driver}}</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+        <td>Driver</td>
+        <td>{{$transaksi[0]->nama_driver}}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr style="background-color:black">
-    <td colspan="4">&nbsp;</td>
+        <td colspan="4">&nbsp;</td>
     </tr>
     <tr class="border-bottom">
-    <td colspan="4"><strong><center>Nota Transaksi</center></strong></td>
+        <td colspan="4"><strong><center>Nota Transaksi</center></strong></td>
     </tr>
     <tr class="border-bottom">
-    <td>Tanggal Mulai Sewa</td>
-    <td>{{$transaksi[0]->tgl_mulai_sewa}}</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+        <td>Tanggal Mulai Sewa</td>
+        <td>{{$transaksi[0]->tgl_mulai_sewa}}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr class="border-bottom">
-    <td>Tanggal Selesai Sewa</td>
-    <td>{{$transaksi[0]->tgl_selesai_sewa}}</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+        <td>Tanggal Selesai Sewa</td>
+        <td>{{$transaksi[0]->tgl_selesai_sewa}}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr class="border-bottom">
-    <td>Tanggal Pengembalian</td>
-    <td>{{$transaksi[0]->tgl_pengembalian}}</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+        <td>Tanggal Pengembalian</td>
+        <td>{{$transaksi[0]->tgl_pengembalian}}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr class="border-bottom">
-    <td><strong>Item</strong></td>
-    <td><strong>Satuan</strong></td>
-    <td><strong>Durasi</strong></td>
-    <td><strong>Sub Total</strong></td>
+        <td><strong>Item</strong></td>
+        <td><strong>Satuan</strong></td>
+        <td><strong>Durasi</strong></td>
+        <td><strong>Sub Total</strong></td>
     </tr>
     <tr>
-    <td>[Mobil] {{$transaksi[0]->nama_mobil}}</td>
-    <td>{{$transaksi[0]->tarif_mobil_harian}}</td>
-    <td>{{$transaksi[0]->durasi_penyewaan}} Hari</td>
-    <td>{{$transaksi[0]->total_biaya_mobil}}</td>
+        <td>[Mobil] {{$transaksi[0]->nama_mobil}}</td>
+        <td>{{$transaksi[0]->tarif_mobil_harian}}</td>
+        <td>{{$transaksi[0]->durasi_penyewaan}} Hari</td>
+        <td>{{$transaksi[0]->total_biaya_mobil}}</td>
     </tr>
     <tr class="border-bottom">
-        <td>[Driver] {{$transaksi[0]->nama_driver}}</td>
-        <td>{{$transaksi[0]->tarif_driver_harian}}</td>
-        <td>{{$transaksi[0]->durasi_penyewaan}} Hari</td>
-        <td>{{$transaksi[0]->total_biaya_driver}}</td>
+        @if($transaksi[0]->nama_driver == null)
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        @else
+            <td>[Driver] {{$transaksi[0]->nama_driver}}</td>
+            <td>{{$transaksi[0]->tarif_driver_harian}}</td>
+            <td>{{$transaksi[0]->durasi_penyewaan}} Hari</td>
+            <td>{{$transaksi[0]->total_biaya_driver}}</td>
+        @endif
     </tr>
     
     <tr>

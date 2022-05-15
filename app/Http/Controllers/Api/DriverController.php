@@ -231,7 +231,7 @@ class DriverController extends Controller
             'jenis_kelamin_driver'=>'required',
             'no_telepon_driver' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
             'email'=>'required|email:rfc,dns|unique:customers,email|unique:pegawais,email',
-            'password'=> 'required',
+            'password',
             'foto_driver' => 'image',
             'no_sim_driver'=> 'required',
             'sim_driver'=>'image',
@@ -263,7 +263,7 @@ class DriverController extends Controller
 
         if($validate->fails())
             return response(['message'=> $validate->errors()],400);
-        if($request->tgl_lahir_driver!=$pegawai->tgl_lahir_driver){
+        if($request->tgl_lahir_driver!=$driver->tgl_lahir_driver){
             $updateData['password'] = Carbon::parse($request->tgl_lahir_driver)->format('d/m/Y');
             $updateData['password'] = bcrypt($updateData['password']);
             $driver->password = $updateData['password'];
@@ -275,7 +275,7 @@ class DriverController extends Controller
         $driver->jenis_kelamin_driver = $updateData['jenis_kelamin_driver'];
         $driver->no_telepon_driver = $updateData['no_telepon_driver'];
         $driver->email = $updateData['email'];
-        $driver->password = $updateData['password'];
+        // $driver->password = $updateData['password'];
         // $driver->foto_driver = $updateData['foto_driver'];
         $driver->no_sim_driver = $updateData['no_sim_driver'];
         // $driver->sim_driver = $updateData['sim_driver'];
@@ -302,7 +302,6 @@ class DriverController extends Controller
 
     public function getRerataDriver(){
         $drivers = TransaksiPenyewaan::selectRaw("id_driver, AVG(rating_driver) as rerata_rating")->groupBy('id_driver')->get();
-
         if(count($drivers)>0){
             return response([
                 'message'=>'Retrieve Rerata Driver',
