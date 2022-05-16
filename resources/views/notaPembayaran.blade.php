@@ -98,7 +98,7 @@
         <td><center>Customer</center></td>
         <td><center>Customer Service</center></td>
         <td class="border-bottom-1">Diskon</td>
-        <td class="border-bottom-1">{{($transaksi[0]->potongan_promo)*$transaksi[0]->grand_total_pembayaran}}</td>
+        <td class="border-bottom-1">{{$transaksi[0]->total_biaya_driver+$transaksi[0]->total_biaya_mobil+$transaksi[0]->total_biaya_ekstensi-$transaksi[0]->grand_total_pembayaran}}</td>
     </tr>
     <tr>
         <td>&nbsp;</td>

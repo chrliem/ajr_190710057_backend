@@ -111,21 +111,31 @@ class TransaksiPenyewaanController extends Controller
        //Cek jika sedang ada transaksi berjalan
        $checkNoData = TransaksiPenyewaan::selectRaw('*')->whereRaw("id_customer='$request->id_customer'")->count();
        if($checkNoData!=null){
-            $checkIfFinished = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Selesai'")
-                        ->count();
-            $checkIfCancelled = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Batal Transaksi'")
+            // $checkIfFinished = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Selesai'")
+            //             ->count();
+            // $checkIfCancelled = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Batal Transaksi'")
+            // ->count();
+            // $checkIfRejected = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Verifikasi Ditolak'")
+            // ->count();
+            $checkIfOnGoing = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Sedang Berjalan'")
             ->count();
-            $checkIfRejected = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Verifikasi Ditolak'")
+            $checkIfOnGoing1 = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Menunggu Verifikasi'")
             ->count();
-        if($checkIfFinished==null){
-            if($checkIfCancelled==null){
-                if($checkIfRejected==null){
-                    return response([
-                        'message' => 'Transaksi penyewaan sebelumnya belum selesai'
-                    ]);
-                }
+        // if($checkIfFinished==null){
+        //     if($checkIfCancelled==null){
+        //         if($checkIfRejected==null){
+        //             return response([
+        //                 'message' => 'Transaksi penyewaan sebelumnya belum selesai'
+        //             ]);
+        //         }
                 
-            }
+        //     }
+        // }
+
+        if($checkIfOnGoing!=null || $checkIfOnGoing1!=null){
+            return response([
+                'message' => 'Transaksi penyewaan sebelumnya belum selesai'
+            ]);
         }
        }
        
@@ -257,11 +267,29 @@ class TransaksiPenyewaanController extends Controller
         $updateData = $request->all();
         if($updateData['status_transaksi']=='Sedang Berjalan' && $transaksi->id_driver==null){
             $mobil = Mobil::find($transaksi->id_mobil);
+            if($mobil->status_ketersediaan_mobil==0){
+                return response([
+                    'message'=>'Mobil tidak tersedia'
+                ],400);
+            }else
             $mobil->status_ketersediaan_mobil = 0;
             $mobil->save();
         }else if($updateData['status_transaksi']=='Sedang Berjalan'){
             $mobil = Mobil::find($transaksi->id_mobil);
             $driver = Driver::find($transaksi->id_driver);
+            if($mobil->status_ketersediaan_mobil==0 && $driver->status_ketersediaan_driver==0){
+                return response([
+                    'message'=>'Mobil dan Driver tidak tersedia'
+                ],400);
+            }else if($mobil->status_ketersediaan_mobil==100){
+                return response([
+                    'message'=>'Mobil tidak tersedia'
+                ],400);
+            }else if($driver->status_ketersediaan_driver==0){
+                return response([
+                    'message'=>'Driver tidak tersedia'
+                ],400);
+            }else
             $mobil->status_ketersediaan_mobil = 0;
             $driver->status_ketersediaan_driver = 0;
             $mobil->save();
@@ -324,15 +352,6 @@ class TransaksiPenyewaanController extends Controller
         }
         
         }else
-
-        // if($transaksi->id_driver!=null&&$transaksi->id_driver!=$request->id_driver){
-        //     $driver = Driver::find($request->id_driver);
-        //     if($driver->status_ketersediaan_driver==0){
-        //         return response([
-        //             'message'=>'Driver Tidak Tersedia'
-        //         ], 400);
-        //     }
-        // }else
         if($transaksi->id_driver==null && $transaksi->id_mobil!= $request->id_mobil){
             $mobil = Mobil::find($request->id_mobil);
             if($mobil->status_ketersediaan_mobil==0){
@@ -343,27 +362,9 @@ class TransaksiPenyewaanController extends Controller
         }else{
             $mobil = Mobil::find($transaksi->id_mobil);
             $mobil->status_ketersediaan_mobil=1;
-            $mobil->save();
-
-            // if($transaksi->id_driver!=null){
-            //     $driver = Driver::find($transaksi->id_driver);
-            //     $driver->status_ketersediaan_driver=1;
-            //     $driver->save();
-            //     $transaksi->id_driver = $updateData['id_driver'];
-            // }
+            $mobil->save();       
         }
         
-        // if($transaksi->id_driver!=null && $transaksi->id_driver!= $request->id_driver){
-        //     $driver = Driver::find($transaksi->id_driver);
-        //     $driver->status_ketersediaan_driver=1;
-        //     $driver->save();
-        //     $transaksi->id_driver = $updateData['id_driver'];
-        // }
-        // if($transaksi->id_mobil!= $request->id_mobil){
-        //     $mobil = Mobil::find($transaksi->id_mobil);
-        //     $mobil->status_ketersediaan_mobil=1;
-        //     $mobil->save();
-        // }
         $transaksi->grand_total_pembayaran = 0;
         $transaksi->id_mobil = $updateData['id_mobil'];
         $transaksi->tgl_mulai_sewa = $updateData['tgl_mulai_sewa'];
@@ -523,6 +524,13 @@ class TransaksiPenyewaanController extends Controller
                 $mobil = Mobil::find($transaksi->id_mobil);
                 $transaksi->total_biaya_ekstensi  = 0;
                 $transaksi->grand_total_pembayaran = $transaksi->grand_total_pembayaran + $transaksi->total_biaya_ekstensi ;
+                if($transaksi->id_promo!=null){
+                    $promo = Promo::find($transaksi->id_promo);
+                    $diskon = $promo->potongan_promo * $transaksi->grand_total_pembayaran;
+                    $transaksi->grand_total_pembayaran  = ($transaksi->grand_total_pembayaran - $diskon) + $transaksi->total_biaya_ekstensi;
+                }else{
+                    $transaksi->grand_total_pembayaran = $transaksi->grand_total_pembayaran + $transaksi->total_biaya_ekstensi ;
+                }
                 $mobil->status_ketersediaan_mobil = 1;
                 $mobil->save();
                 $driver->status_ketersediaan_driver = 1;
@@ -532,6 +540,13 @@ class TransaksiPenyewaanController extends Controller
                 $mobil = Mobil::find($transaksi->id_mobil);
                 $transaksi->total_biaya_ekstensi = 0;
                 $transaksi->grand_total_pembayaran = $transaksi->grand_total_pembayaran + $transaksi->total_biaya_ekstensi ;
+                if($transaksi->id_promo!=null){
+                    $promo = Promo::find($transaksi->id_promo);
+                    $diskon = $promo->potongan_promo * $transaksi->grand_total_pembayaran;
+                    $transaksi->grand_total_pembayaran  = ($transaksi->grand_total_pembayaran - $diskon) + $transaksi->total_biaya_ekstensi;
+                }else{
+                    $transaksi->grand_total_pembayaran = $transaksi->grand_total_pembayaran + $transaksi->total_biaya_ekstensi ;
+                }
                 $mobil->status_ketersediaan_mobil = 1;
                 $mobil->save();
             }
