@@ -58,6 +58,63 @@ class CustomerController extends Controller
         ], 404);
     }
 
+    public function showDataTransaksiPenyewaanbyIdCustomerMobile($id){
+        $transaksis = TransaksiPenyewaan::selectRaw( 'transaksi_penyewaans.no_transaksi,
+        customers.nama_customer,
+        promos.kode_promo,
+        promos.potongan_promo,
+        mobils.nama_mobil,
+        mobils.foto_mobil,
+        mobils.no_plat,
+        mobils.tipe_mobil,
+        mobils.warna_mobil,
+        mobils.jenis_transmisi,
+        mobils.jenis_bahan_bakar,
+        mobils.volume_bahan_bakar,
+        mobils.kapasitas_penumpang,
+        mobils.fasilitas_mobil,
+        mobils.tarif_mobil_harian,
+        drivers.foto_driver,
+        drivers.nama_driver,
+        drivers.jenis_kelamin_driver,
+        drivers.tarif_driver_harian,
+        drivers.no_telepon_driver,
+        pegawais.nama_pegawai,
+        transaksi_penyewaans.no_transaksi,
+        transaksi_penyewaans.tgl_transaksi,
+        transaksi_penyewaans.tgl_mulai_sewa,
+        transaksi_penyewaans.tgl_selesai_sewa,
+        DATEDIFF(transaksi_penyewaans.tgl_selesai_sewa, transaksi_penyewaans.tgl_mulai_sewa) as durasi_penyewaan,
+        transaksi_penyewaans.tgl_pengembalian,
+        transaksi_penyewaans.total_biaya_ekstensi,
+        transaksi_penyewaans.total_biaya_driver,
+        transaksi_penyewaans.total_biaya_mobil,
+        transaksi_penyewaans.metode_pembayaran,
+        transaksi_penyewaans.bukti_pembayaran,
+        transaksi_penyewaans.status_pembayaran,
+        transaksi_penyewaans.status_transaksi,
+        transaksi_penyewaans.rating_driver,
+        transaksi_penyewaans.rating_ajr,
+        transaksi_penyewaans.grand_total_pembayaran'
+    )->leftJoin('customers','transaksi_penyewaans.id_customer','=','customers.id_customer')
+    ->leftJoin('promos','transaksi_penyewaans.id_promo','=','promos.id_promo')
+    ->leftJoin('mobils','transaksi_penyewaans.id_mobil','=','mobils.id_mobil')
+    ->leftJoin('drivers','transaksi_penyewaans.id_driver','=','drivers.id_driver')
+    ->leftJoin('pegawais','transaksi_penyewaans.id_pegawai','=','pegawais.id_pegawai')->whereRaw("transaksi_penyewaans.id_customer='$id'")->get();
+
+        if(count($transaksis)>0){
+            return response([
+                'messsage' => 'Retrieve All Transaksi Success',
+                'data' => $transaksis
+            ], 200);
+        }
+
+        return response([
+            'message'=>'Empty',
+            'data'=> null
+        ], 404);
+    }
+
     public function addDataCustomer(Request $request){
         
         $addData = $request->all();

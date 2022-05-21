@@ -247,4 +247,20 @@ class MobilController extends Controller
             'data'=>null
         ], 404);
     }
+
+    public function showDataMobilAvailable(){
+        $mobils = Mobil::where('status_ketersediaan_mobil','=',1)->get();
+
+        if(count($mobils)>0){
+            return response([
+                'message'=>'Retrieve Mobil Success',
+                'data'=>$mobils
+            ], 200);
+        }
+
+        return response([
+            'message'=>'No Mobil Available',
+            'data'=>null
+        ], 404);
+    }
 }

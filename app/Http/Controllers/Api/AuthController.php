@@ -49,7 +49,7 @@ class AuthController extends Controller
             if($checkCustomer!=null){
                 if(!Auth::guard('customer')->attempt($loginData))
                 return response([
-                    'message' => 'Invalid Credentials Customer',
+                    'message' => $loginData,
                     'data' => $loginData
                 ],401); 
 

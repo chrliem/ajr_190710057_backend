@@ -83,10 +83,13 @@ Route::group(['middleware' => 'auth:customer-api'], function(){
     Route::get('customer-profile/{id}','Api\CustomerController@showDataCustomerbyId');
     Route::post('customer/{id}','Api\CustomerController@updateDataCustomer');
     Route::get('mobil-list','Api\MobilController@showDataMobil');
+    Route::get('mobil/available','Api\MobilController@showDataMobilAvailable');
     Route::get('driver-list','Api\DriverController@showDataDriver');
     Route::get('promo-list','Api\PromoController@showDataPromo');
+    Route::get('promo-available','Api\PromoController@showDataPromoAvailable');
     Route::get('transaksipenyewaan/{id}','Api\TransaksiPenyewaanController@showDataTransaksiPenyewaanbyId');
     Route::get('transaksipenyewaan-customer/{id}','Api\CustomerController@showDataTransaksiPenyewaanbyIdCustomer');
+    Route::get('transaksipenyewaan-customer-mobile/{id}','Api\CustomerController@showDataTransaksiPenyewaanbyIdCustomerMobile');
     Route::post('transaksipenyewaan','Api\TransaksiPenyewaanController@addDataTransaksiPenyewaan');
     // Route::get('transaksipenyewaan/{id}/pembatalan','Api\TransaksiPenyewaanController@cancelDataTransaksiPenyewaan');
     Route::post('transaksipenyewaan/{id}/pembayaran','Api\TransaksiPenyewaanController@pembayaranTransaksiPenyewaan');
@@ -95,7 +98,7 @@ Route::group(['middleware' => 'auth:customer-api'], function(){
     // Route::get('transaksipenyewaan/{id}/cetak-nota','Api\TransaksiPenyewaanController@cetakNotaPembayaran');
 });
 Route::get('transaksipenyewaan/{id}/cetak-nota','Api\TransaksiPenyewaanController@cetakNotaPembayaran');
-
+// Route::get('mobil-list','Api\MobilController@showDataMobil');
 // Route::group(['middleware'=>'auth:customer-api'|| 'auth:pegawai-api'], function(){
 //     Route::get('mobil','Api\MobilController@showDataMobil');
 //     Route::get('driver','Api\DriverController@showDataDriver');

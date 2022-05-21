@@ -25,7 +25,7 @@ class PromoController extends Controller
             'data'=>null
         ], 404);
     }
-
+    
     public function showDataPromobyId($id){
         $promo = Promo::find($id);
 
@@ -136,5 +136,22 @@ class PromoController extends Controller
             'data'=> null
         ],400);
         
+    }
+
+    public function showDataPromoAvailable(){
+        $promos = Promo::where('status_promo','=',1)->get();
+
+        if(count($promos)>0){
+            return response([
+                'message' => 'Retrieve All Promo Success',
+                'data' => $promos
+            ],200);
+        }
+
+        return response([
+            'message'=>'Empty',
+            'data'=>null
+        ], 404);
+
     }
 }
