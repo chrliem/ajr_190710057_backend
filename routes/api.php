@@ -82,6 +82,7 @@ Route::post('customer','Api\CustomerController@addDataCustomer');
 Route::group(['middleware' => 'auth:customer-api'], function(){
     Route::get('customer-profile/{id}','Api\CustomerController@showDataCustomerbyId');
     Route::post('customer/{id}','Api\CustomerController@updateDataCustomer');
+    Route::post('customer-mobile/{id}','Api\CustomerController@updateDataCustomerMobile');
     Route::get('mobil-list','Api\MobilController@showDataMobil');
     Route::get('mobil/available','Api\MobilController@showDataMobilAvailable');
     Route::get('driver-list','Api\DriverController@showDataDriver');

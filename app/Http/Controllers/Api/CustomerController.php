@@ -303,5 +303,74 @@ class CustomerController extends Controller
             'data'=> null
         ],400);
     }
+
+    public function updateDataCustomerMobile(Request $request, $id){
+        $customer = Customer::find($id);
+        if(is_null($customer)){
+            return response([
+                'message'=>'Customer Not Found',
+                'data' =>null
+            ],404);
+        }
+
+        $updateData = $request->all();
+
+
+        $validate = Validator::make($updateData, [
+        'id_customer',
+        'nama_customer'=>'required',
+        'alamat_customer'=> 'required',
+        'tgl_lahir_customer' =>'required|date_format:Y-m-d',
+        'jenis_kelamin_customer' => 'required',
+        'no_telepon_customer' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
+        'no_kartu_identitas_customer' => 'required' ,
+        'kartu_identitas_customer',
+        'no_sim_customer',
+        'sim_customer',
+        'email' => 'required|unique:drivers,email|unique:pegawais,email',
+        'password',
+        'tipe_sewa_customer'
+        ],[],[
+            'nama_customer'=>'Nama Customer',
+            'alamat_customer'=> 'Alamat Customer',
+            'tgl_lahir_customer' =>'Tanggal Lahir Customer',
+            'jenis_kelamin_customer' => 'Jenis Kelamin Customer',
+            'no_telepon_customer' => 'Nomor Telepon Customer',
+            'no_kartu_identitas_customer' => 'Nomor Kartu Identitas' ,
+            'kartu_identitas_customer' => 'Foto Kartu Identitas',
+            'no_sim_customer',
+            'sim_customer',
+            'email' => 'Email Customer',
+        ]);
+
+        if($validate->fails())
+            return response(['message'=> $validate->errors()],400);
+
+        if($request->tgl_lahir_customer!=$customer->tgl_lahir_customer){
+            $updateData['password'] = Carbon::parse($request->tgl_lahir_customer)->format('d/m/Y');
+            $updateData['password'] = bcrypt($updateData['password']);
+            $customer->password = $updateData['password'];
+        }
+        // $updateData['password'] = bcrypt($updateData['password']);
+
+        $customer->nama_customer = $updateData['nama_customer'];
+        $customer->alamat_customer = $updateData['alamat_customer'];
+        $customer->tgl_lahir_customer = $updateData['tgl_lahir_customer'];
+        $customer->jenis_kelamin_customer = $updateData['jenis_kelamin_customer'];
+        $customer->no_telepon_customer = $updateData['no_telepon_customer'];
+        // $customer->password = $updateData['password'];
+
+        if($customer->save()){
+            return response([
+                'message' => 'Update Data Customer Success',
+                'user' => $customer
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Customer Failed',
+            'data'=> null
+        ],400);
+    }
     
 }
