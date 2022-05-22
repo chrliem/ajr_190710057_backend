@@ -74,6 +74,7 @@ class CustomerController extends Controller
         mobils.kapasitas_penumpang,
         mobils.fasilitas_mobil,
         mobils.tarif_mobil_harian,
+        drivers.id_driver,
         drivers.foto_driver,
         drivers.nama_driver,
         drivers.jenis_kelamin_driver,

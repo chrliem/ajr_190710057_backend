@@ -99,6 +99,10 @@ Route::group(['middleware' => 'auth:customer-api'], function(){
     // Route::get('transaksipenyewaan/{id}/cetak-nota','Api\TransaksiPenyewaanController@cetakNotaPembayaran');
 });
 Route::get('transaksipenyewaan/{id}/cetak-nota','Api\TransaksiPenyewaanController@cetakNotaPembayaran');
+
+Route::group(['middleware' => 'auth:driver-api'], function(){
+    Route::get('driver/{id}/history','Api\DriverController@showDataTransaksiPenyewaanbyIdDriverMobile');
+});
 // Route::get('mobil-list','Api\MobilController@showDataMobil');
 // Route::group(['middleware'=>'auth:customer-api'|| 'auth:pegawai-api'], function(){
 //     Route::get('mobil','Api\MobilController@showDataMobil');

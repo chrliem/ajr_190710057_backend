@@ -72,8 +72,8 @@ class AuthController extends Controller
                     'data' => $loginData
                 ],401); 
 
-                $customer = Auth::guard('driver')->user();
-                $token = $customer->createToken('Authentication Token')->accessToken; 
+                $driver = Auth::guard('driver')->user();
+                $token = $driver->createToken('Authentication Token')->accessToken; 
 
                 return response([
                     'message' => 'Authenticated as Driver',

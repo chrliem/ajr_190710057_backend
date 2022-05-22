@@ -314,4 +314,48 @@ class DriverController extends Controller
             'data'=>null
         ], 404);
     }
+
+    public function showDataTransaksiPenyewaanbyIdDriverMobile($id){
+        $transaksis = TransaksiPenyewaan::selectRaw('
+            transaksi_penyewaans.no_transaksi,
+            promos.kode_promo,
+            promos.potongan_promo,
+            mobils.nama_mobil,
+            mobils.foto_mobil,
+            mobils.no_plat,
+            mobils.tarif_mobil_harian,
+            drivers.id_driver,
+            drivers.foto_driver,
+            drivers.nama_driver,
+            drivers.tarif_driver_harian,
+            pegawais.nama_pegawai,
+            transaksi_penyewaans.tgl_transaksi,
+            transaksi_penyewaans.tgl_mulai_sewa,
+            transaksi_penyewaans.tgl_selesai_sewa,
+            DATEDIFF(transaksi_penyewaans.tgl_selesai_sewa, transaksi_penyewaans.tgl_mulai_sewa) as durasi_penyewaan,
+            transaksi_penyewaans.tgl_pengembalian,
+            transaksi_penyewaans.total_biaya_ekstensi,
+            transaksi_penyewaans.total_biaya_driver,
+            transaksi_penyewaans.total_biaya_mobil,
+            transaksi_penyewaans.status_transaksi,
+            transaksi_penyewaans.grand_total_pembayaran,
+            transaksi_penyewaans.rating_driver')
+            ->leftJoin('customers','transaksi_penyewaans.id_customer','=','customers.id_customer')
+    ->leftJoin('promos','transaksi_penyewaans.id_promo','=','promos.id_promo')
+    ->leftJoin('mobils','transaksi_penyewaans.id_mobil','=','mobils.id_mobil')
+    ->leftJoin('drivers','transaksi_penyewaans.id_driver','=','drivers.id_driver')
+    ->leftJoin('pegawais','transaksi_penyewaans.id_pegawai','=','pegawais.id_pegawai')->whereRaw("transaksi_penyewaans.id_driver='$id'")->get();
+
+        if(count($transaksis)>0){
+            return response([
+                'messsage' => 'Retrieve All Transaksi Success',
+                'data' => $transaksis
+            ], 200);
+        }
+
+        return response([
+            'message'=>'Empty',
+            'data'=> null
+        ], 404);
+    }
 }
