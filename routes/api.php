@@ -102,6 +102,9 @@ Route::get('transaksipenyewaan/{id}/cetak-nota','Api\TransaksiPenyewaanControlle
 
 Route::group(['middleware' => 'auth:driver-api'], function(){
     Route::get('driver/{id}/history','Api\DriverController@showDataTransaksiPenyewaanbyIdDriverMobile');
+    Route::get('driver/{id}/average','Api\DriverController@getRerataDriverbyId');
+    Route::post('driver-profile/{id}/update','Api\DriverController@updateDataDriverMobile');
+    Route::post('driver-profile/{id}/update-status','Api\DriverController@updateStatusKetersediaanDriver');
 });
 // Route::get('mobil-list','Api\MobilController@showDataMobil');
 // Route::group(['middleware'=>'auth:customer-api'|| 'auth:pegawai-api'], function(){
@@ -111,7 +114,7 @@ Route::group(['middleware' => 'auth:driver-api'], function(){
 // });
     Route::get('role','Api\RoleController@showDataRole');
     Route::get('role/{id}','Api\RoleController@showDataRolebyId');
-
+    // Route::get('driver/{id}/average','Api\DriverController@getRerataDriverbyId');
     // Route::get('pegawai','Api\PegawaiController@showDataPegawai');
     // Route::get('pegawai/{id}','Api\PegawaiController@showDataPegawaibyId');
     // Route::post('pegawai','Api\PegawaiController@addDataPegawai');

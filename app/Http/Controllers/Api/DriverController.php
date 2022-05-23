@@ -315,6 +315,19 @@ class DriverController extends Controller
         ], 404);
     }
 
+    public function getRerataDriverbyId($id){
+        $drivers = TransaksiPenyewaan::selectRaw("AVG(rating_driver) as rerata_rating")
+                ->whereRaw("id_driver='$id'")
+                ->get()
+                ->first();
+
+            return response([
+                'message'=>'Retrieve Rerata Driver',
+                'data'=>$drivers
+            ], 200);
+
+    }
+
     public function showDataTransaksiPenyewaanbyIdDriverMobile($id){
         $transaksis = TransaksiPenyewaan::selectRaw('
             transaksi_penyewaans.no_transaksi,
@@ -344,7 +357,8 @@ class DriverController extends Controller
     ->leftJoin('promos','transaksi_penyewaans.id_promo','=','promos.id_promo')
     ->leftJoin('mobils','transaksi_penyewaans.id_mobil','=','mobils.id_mobil')
     ->leftJoin('drivers','transaksi_penyewaans.id_driver','=','drivers.id_driver')
-    ->leftJoin('pegawais','transaksi_penyewaans.id_pegawai','=','pegawais.id_pegawai')->whereRaw("transaksi_penyewaans.id_driver='$id'")->get();
+    ->leftJoin('pegawais','transaksi_penyewaans.id_pegawai','=','pegawais.id_pegawai')
+    ->whereRaw("transaksi_penyewaans.id_driver='$id'")->get();
 
         if(count($transaksis)>0){
             return response([
@@ -357,5 +371,107 @@ class DriverController extends Controller
             'message'=>'Empty',
             'data'=> null
         ], 404);
+    }
+
+    public function updateDataDriverMobile(Request $request, $id){
+        $driver = Driver::find($id);
+        if(is_null($driver)){
+            return response([
+                'message'=>'Driver Not Found',
+                'data' =>null
+            ],404);
+        }
+
+        $updateData = $request->all();
+
+        $validate = Validator::make($updateData, [
+            'id_driver',
+            'nama_driver'=>'required',
+            'alamat_driver'=>'required',
+            'tgl_lahir_driver'=>'required',
+            'jenis_kelamin_driver'=>'required',
+            'no_telepon_driver' => 'required|numeric|digits_between:1,13|regex:/^((08))/',
+            'email',
+            'password',
+            'foto_driver',
+            'no_sim_driver',
+            'sim_driver',
+            'surat_bebas_napza',
+            'surat_kesehatan_jiwa',
+            'surat_kesehatan_jasmani',
+            'skck',
+            'tarif_driver_harian',
+            'kemampuan_bahasa_asing',
+            'status_ketersediaan_driver',
+            'status_aktif'
+        ], [], [
+            'nama_driver'=>'Nama Driver',
+            'alamat_driver'=>'Alamat Driver',
+            'tgl_lahir_driver'=>'Tanggal Lahir Driver',
+            'jenis_kelamin_driver'=>'Jenis Kelamin Driver',
+            'no_telepon_driver' => 'Nomor Telepon Driver',
+            'email'=>'Email Driver',
+            'foto_driver'=> 'Foto Driver',
+            'no_sim_driver'=> 'Nomor SIM Driver',
+            'sim_driver'=> 'Foto SIM Driver',
+            'surat_bebas_napza'=> 'Foto Surat Bebas Napza',
+            'surat_kesehatan_jiwa'=> 'Foto Surat Kesehatan Jiwa',
+            'surat_kesehatan_jasmani'=> 'Foto Surat Kesehatan Jasmani',
+            'skck'=> 'Foto SKCK',
+            'tarif_driver_harian'=> 'Tarif Harian Driver',
+            'kemampuan_bahasa_asing'=> 'Kemampuan Bahasa Asing',
+        ]);
+
+        if($validate->fails())
+            return response(['message'=> $validate->errors()],400);
+        if($request->tgl_lahir_driver!=$driver->tgl_lahir_driver){
+            $updateData['password'] = Carbon::parse($request->tgl_lahir_driver)->format('d/m/Y');
+            $updateData['password'] = bcrypt($updateData['password']);
+            $driver->password = $updateData['password'];
+        }
+
+        $driver->nama_driver = $updateData['nama_driver'];
+        $driver->alamat_driver = $updateData['alamat_driver'];
+        $driver->tgl_lahir_driver = $updateData['tgl_lahir_driver'];
+        $driver->jenis_kelamin_driver = $updateData['jenis_kelamin_driver'];
+        $driver->no_telepon_driver = $updateData['no_telepon_driver'];      
+    
+        if($driver->save()){
+            return response([
+                'message' => 'Update Driver Success',
+                'user' => $driver
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Driver Failed',
+            'user'=> null
+        ],400);
+    }
+
+    public function updateStatusKetersediaanDriver(Request $request, $id){
+        $driver = Driver::find($id);
+        if(is_null($driver)){
+            return response([
+                'message'=>'Driver Not Found',
+                'data' =>null
+            ],404);
+        }
+
+        $updateData = $request->all();
+
+        $driver->status_ketersediaan_driver = $updateData['status_ketersediaan_driver'];
+
+        if($driver->save()){
+            return response([
+                'message' => 'Update Status Ketersediaan Success',
+                'user' => $driver
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Status Ketersediaan Failed',
+            'user'=> null
+        ],400);
     }
 }
