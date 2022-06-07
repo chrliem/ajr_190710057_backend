@@ -161,7 +161,13 @@ class CustomerController extends Controller
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);
-
+        $age = Carbon::parse($request->tgl_lahir_customer)->age;
+        if($age<17)
+            return response([
+                'message'=>'Pendaftar harus berusia minimal 17 tahun',
+                'data' => null
+            ],400);
+        
         $addData['password'] = Carbon::parse($request->tgl_lahir_customer)->format('d/m/Y');
         $addData['password'] = bcrypt($addData['password']);
 

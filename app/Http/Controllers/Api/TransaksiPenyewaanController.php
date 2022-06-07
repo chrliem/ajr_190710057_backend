@@ -89,21 +89,6 @@ class TransaksiPenyewaanController extends Controller
         }
     }
 
-    // public function showDataTransaksiPenyewaanbyIdCustomer($id_customer){
-    //     $transaksis = TransaksiPenyewaan::selectRaw('*')->whereRaw("id_customer='$id_customer'");
-
-    //     if(count($transaksis)>0){
-    //         return response([
-    //             'messsage' => 'Retrieve All Transaksi Success',
-    //             'data' => $transaksis
-    //         ], 200);
-    //     }
-
-    //     return response([
-    //         'message'=>'Empty',
-    //         'data'=> null
-    //     ], 404);
-    // }
 
     public function addDataTransaksiPenyewaan(Request $request){
         $addData = $request->all();
@@ -111,26 +96,10 @@ class TransaksiPenyewaanController extends Controller
        //Cek jika sedang ada transaksi berjalan
        $checkNoData = TransaksiPenyewaan::selectRaw('*')->whereRaw("id_customer='$request->id_customer'")->count();
        if($checkNoData!=null){
-            // $checkIfFinished = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Selesai'")
-            //             ->count();
-            // $checkIfCancelled = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Batal Transaksi'")
-            // ->count();
-            // $checkIfRejected = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Verifikasi Ditolak'")
-            // ->count();
             $checkIfOnGoing = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Sedang Berjalan'")
             ->count();
             $checkIfOnGoing1 = TransaksiPenyewaan::selectRaw('status_transaksi')->whereRaw("id_customer='$request->id_customer' &&status_transaksi='Menunggu Verifikasi'")
             ->count();
-        // if($checkIfFinished==null){
-        //     if($checkIfCancelled==null){
-        //         if($checkIfRejected==null){
-        //             return response([
-        //                 'message' => 'Transaksi penyewaan sebelumnya belum selesai'
-        //             ]);
-        //         }
-                
-        //     }
-        // }
 
         if($checkIfOnGoing!=null || $checkIfOnGoing1!=null){
             return response([
@@ -484,8 +453,8 @@ class TransaksiPenyewaanController extends Controller
         if($validate->fails())
             return response(['message'=> $validate->errors()],400);
 
-        $checkTime  = Carbon::parse($updateData['tgl_pengembalian'])->diffInHours(Carbon::parse($transaksi->tgl_selesai_sewa));
-        if($checkTime>3 && Carbon::parse($updateData['tgl_pengembalian'])>Carbon::parse($transaksi->tgl_selesai_sewa)){
+        $checkTime  = Carbon::parse($updateData['tgl_pengembalian'])->diffInMinutes(Carbon::parse($transaksi->tgl_selesai_sewa));
+        if($checkTime>180 && Carbon::parse($updateData['tgl_pengembalian'])>Carbon::parse($transaksi->tgl_selesai_sewa)){
         
             if($transaksi->id_driver!=null){
                 $driver = Driver::find($transaksi->id_driver);
@@ -552,16 +521,8 @@ class TransaksiPenyewaanController extends Controller
             }
         }
 
-        // $transaksi->grand_total_pembayaran = $transaksi->grand_total_pembayaran + $updateData['total_biaya_ekstensi'];
-
-        // if($transaksi->id_promo!=null){
-        //     $promo = Promo::find($transaksi->id_promo);
-        //     $diskon = $promo->potongan_promo * $transaksi->grand_total_pembayaran;
-        //     $transaksi->grand_total_pembayaran  = ($transaksi->grand_total_pembayaran - $diskon) + $transaksi->total_biaya_ekstensi;
-        // }
         $transaksi->id_pegawai = $updateData['id_pegawai'];
         $transaksi->tgl_pengembalian = $updateData['tgl_pengembalian'];
-        // $transaksi->grand_total_pembayaran = $updateData['grand_total_pembayaran'];
 
         if($transaksi->save()){
             return response([
@@ -693,28 +654,9 @@ class TransaksiPenyewaanController extends Controller
         $pdf = PDF::loadView('notaPembayaran',compact('transaksi'));
         Storage::put('public/Nota Pembayaran.pdf', $pdf->output());
 
-        // $content = $pdf->download('notaPembayaran.pdf')->getOriginalContent();
-        // if(Storage::exists('notaPembayaran.pdf')){
-        //     Storage::putFileAs('public', $content);
-        // }else{
-        //     Storage::putFileAs('public', $content);
-        // }
-        // $pdf->setOption('encoding','UTF-8');
-        
-        // return response([
-            // 'message' => 'Succesful',
-            // 'data' =>  $pdf->download("$transaksi->no_transaksi.'.pdf'")
-            // 'data' => 
-            //  return $pdf->stream("coba.pdf");
-        // ], 200);
-        // return $pdf->download("notaPembayaran.pdf");
         $path = storage_path().'\app\public\Nota Pembayaran.pdf';
         return response()->download($path);
-        // return response([
-        //     'message' => 'Successful',
-        //     'data'=>mb_convert_encoding($pdf->output(), 'UTF-8', 'UTF-8')
-        //     // 'data'=> $pdf->stream()
-        // ], 200);
+
     }
 
     public function averageRatingAJR(){
