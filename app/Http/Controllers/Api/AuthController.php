@@ -22,15 +22,13 @@ class AuthController extends Controller
         ]);
 
         if($validate->fails())
-        return response([
-            'message' => $validate->errors()
-        ],400);
+        return response(['message' => $validate->errors()], 400);
 
         $checkPegawai = Pegawai::where('email',$request->email)->where('status_aktif',1)->count();
         if($checkPegawai!=null){
             if(!Auth::guard('pegawai')->attempt($loginData))
             return response([
-                'message' => 'Invalid Credentials Pegawai',
+                'message' => 'Incorrect Password',
                 'data' => $checkPegawai
             ],401); 
 
@@ -49,7 +47,7 @@ class AuthController extends Controller
             if($checkCustomer!=null){
                 if(!Auth::guard('customer')->attempt($loginData))
                 return response([
-                    'message' => $loginData,
+                    'message' => 'Incorrect Password',
                     'data' => $loginData
                 ],401); 
 
@@ -68,7 +66,7 @@ class AuthController extends Controller
             if($checkDriver!=null){
                 if(!Auth::guard('driver')->attempt($loginData))
                 return response([
-                    'message' => 'Invalid Credentials Driver',
+                    'message' => 'Incorrect Password',
                     'data' => $loginData
                 ],401); 
 
@@ -83,7 +81,11 @@ class AuthController extends Controller
                 ]); 
             
         }
-        
+        if($checkPegawai==null && $checkCustomer==null && $checkDriver==null){
+            return response([
+                'message' => 'User Not Found'
+            ],400);
+        }
     }
 
     public function logout(Request $request) {
