@@ -124,7 +124,7 @@ class CustomerController extends Controller
         $date = Carbon::now()->format('ymd');
         $count = count(Customer::all())+1;
         
-        if($count<9){
+        if($count<=9){
             $formattedNum = Str::padLeft($count, 3,'00');
         }else if($count>9 && $count<100){
             $formattedNum = Str::padLeft($count, 3,'0');
