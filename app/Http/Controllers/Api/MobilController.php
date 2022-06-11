@@ -213,6 +213,7 @@ class MobilController extends Controller
         $mobil->tgl_mulai_kontrak=$updateData['tgl_mulai_kontrak'];
         $mobil->tgl_habis_kontrak=$updateData['tgl_habis_kontrak'];
         $mobil->status_ketersediaan_mobil=$updateData['status_ketersediaan_mobil'];
+        $mobil->tarif_mobil_harian=$updateData['tarif_mobil_harian'];
 
         if($mobil->save()){
             return response([
